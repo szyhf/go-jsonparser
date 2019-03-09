@@ -25,6 +25,9 @@ var (
 // than this needs to be escaped, it will result in a heap allocation
 const unescapeStackBufSize = 64
 
+// 最大递归次数，防止死循环
+var MaxIterCount = 50000
+
 func tokenEnd(data []byte) int {
 	for i, c := range data {
 		switch c {
@@ -61,7 +64,8 @@ func findKeyStart(data []byte, key string) (int, error) {
 		key = bytesToString(&ku)
 	}
 
-	for i < ln {
+	// 通过iter控制最大循环次数
+	for iter := 0; i < ln && iter < MaxIterCount; iter++ {
 		switch data[i] {
 		case '"':
 			i++
@@ -157,7 +161,9 @@ func stringEnd(data []byte) (int, bool) {
 				return i + 1, false
 			} else {
 				j := i - 1
-				for {
+				// 使用iter控制防止死循环
+				iter := 0
+				for iter = 0; iter < MaxIterCount; iter++ {
 					if j < 0 || data[j] != '\\' {
 						return i + 1, true // even number of backslashes
 					}
@@ -167,6 +173,10 @@ func stringEnd(data []byte) (int, bool) {
 					}
 					j--
 
+				}
+				if iter >= MaxIterCount {
+					// 迭代溢出
+					return -1, escaped
 				}
 			}
 		} else if c == '\\' {
@@ -184,7 +194,8 @@ func blockEnd(data []byte, openSym byte, closeSym byte) int {
 	i := 0
 	ln := len(data)
 
-	for i < ln {
+	// 使用iter控制最大循环次数防止死循环
+	for iter := 0; i < ln && iter < MaxIterCount; iter++ {
 		switch data[i] {
 		case '"': // If inside string, skip it
 			se, _ := stringEnd(data[i+1:])
@@ -222,7 +233,8 @@ func searchKeys(data []byte, keys ...string) int {
 
 	var stackbuf [unescapeStackBufSize]byte // stack-allocated array for allocation-free unescaping of small strings
 
-	for i < ln {
+	// 使用iter控制最大循环次数防止死循环
+	for iter := 0; i < ln && iter < MaxIterCount; iter++ {
 		switch data[i] {
 		case '"':
 			i++
@@ -285,7 +297,7 @@ func searchKeys(data []byte, keys ...string) int {
 			if !lastMatched {
 				end := blockEnd(data[i:], '{', '}')
 				i += end - 1
-			} else{
+			} else {
 				level++
 			}
 		case '}':

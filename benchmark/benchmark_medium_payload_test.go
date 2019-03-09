@@ -12,7 +12,7 @@ import (
 	"github.com/a8m/djson"
 	"github.com/antonholmquist/jason"
 	"github.com/bitly/go-simplejson"
-	"github.com/buger/jsonparser"
+	"github.com/szyhf/go-jsonparser"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	"github.com/mreiferson/go-ujson"
 	"github.com/pquerna/ffjson/ffjson"

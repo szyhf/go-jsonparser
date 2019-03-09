@@ -6,11 +6,14 @@
 package benchmark
 
 import (
-	"github.com/buger/jsonparser"
 	"testing"
+
+	jsonparser "github.com/szyhf/go-jsonparser"
+
 	// "github.com/Jeffail/gabs"
 	// "github.com/bitly/go-simplejson"
 	"encoding/json"
+
 	"github.com/a8m/djson"
 	jlexer "github.com/mailru/easyjson/jlexer"
 	"github.com/pquerna/ffjson/ffjson"
